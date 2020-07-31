@@ -24,7 +24,7 @@ class TestSuite(TaskSequence):
         """
         pass
 
-    @task   # 装饰器，说明下面是一个测试任务
+    @task  # 装饰器，说明下面是一个测试任务
     def regist_case(self):
         url = '/erp/regist'
         headers = {"Content-Type": "application/json"}

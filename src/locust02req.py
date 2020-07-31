@@ -14,7 +14,9 @@ class TestSuite(TaskSequence):
         不需要 装饰器 定义
         :return:
         """
-        pass
+        self.headers = {"Content-Type": "application/json"}
+        self.user = "locust" + str(random.randint(100, 999))
+        self.pwd = "1234567890"
 
     def on_stop(self):
         """
@@ -24,21 +26,20 @@ class TestSuite(TaskSequence):
         """
         pass
 
-    @task   # 装饰器，说明下面是一个测试任务
-    @seq_task(1)    # 装饰器 说明任务的执行顺序
+    @task  # 装饰器，说明下面是一个测试任务
+    @seq_task(1)  # 装饰器 说明任务的执行顺序
     def regist_case(self):
         url = '/erp/regist'
-        self.headers = {"Content-Type": "application/json"}
-        self.user = "locust" + str(random.randint(100, 999))
-        self.pwd = "1234567890"
-        data = {"name": self.user, "pwd": self.pwd}
+        data = {"name": self.user, "pwd": self.pwd, "age": self.user[-2:]}
         # self.client 发起请求，相当于requests
         # catch_response 值为True 允许为失败 ， name 设置任务标签名称   -----可选参数
         rsp = self.client.post(url, json=data, headers=self.headers, catch_response=True, name='test_0')
+        # 进行结果断言
         if rsp.status_code == 200:
             rsp.success()
         else:
             rsp.failure("regist注册失败！")
+        # 结果断言的方式还可以： rsp.ok 返回True则说明响应状态小于400
 
     @task
     @seq_task(2)
@@ -46,7 +47,7 @@ class TestSuite(TaskSequence):
         url = '/erp/loginIn'
         data = {"name": self.user, "pwd": self.pwd}
         rsp = self.client.post(url, json=data, headers=self.headers, catch_response=True, name='test_1')
-        self.token = rsp.json()['token']    # 提取响应信息中的 token
+        self.token = rsp.json()['token']  # 提取响应信息中的 token
         print(self.token)
         if rsp.status_code == 200:
             rsp.success()
@@ -70,4 +71,4 @@ class RunCase(HttpLocust):
     创建 压测类 继承 HttpLocust
     """
     task_set = TestSuite  # 指定测试套件    task_set 固定
-    wait_time = between(0.1, 3)  # 定义执行过程中随机等待时间区间，单位 秒
+    wait_time = between(0, 1)  # 定义执行过程中随机等待时间区间，单位 秒

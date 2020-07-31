@@ -1,5 +1,4 @@
-import random
-from locust import TaskSequence, HttpLocust, task, seq_task, between
+from locust import TaskSequence, HttpLocust,task, seq_task, between
 
 
 class TestSuite(TaskSequence):
