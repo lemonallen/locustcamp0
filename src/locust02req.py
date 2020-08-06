@@ -1,4 +1,4 @@
-import random
+import random, json
 from locust import TaskSequence, HttpLocust, task, seq_task, between
 
 
@@ -26,14 +26,14 @@ class TestSuite(TaskSequence):
         """
         pass
 
-    @task  # 装饰器，说明下面是一个测试任务
+    @task(3)  # 装饰器，说明下面是一个测试任务
     @seq_task(1)  # 装饰器 说明任务的执行顺序
     def regist_case(self):
         url = '/erp/regist'
         data = {"name": self.user, "pwd": self.pwd, "age": self.user[-2:]}
         # self.client 发起请求，相当于requests
         # catch_response 值为True 允许为失败 ， name 设置任务标签名称   -----可选参数
-        rsp = self.client.post(url, json=data, headers=self.headers, catch_response=True, name='test_0')
+        rsp = self.client.post(url, data=json.dumps(data), headers=self.headers, catch_response=True, name='test_0')
         # 进行结果断言
         if rsp.status_code == 200:
             rsp.success()
@@ -41,12 +41,12 @@ class TestSuite(TaskSequence):
             rsp.failure("regist注册失败！")
         # 结果断言的方式还可以： rsp.ok 返回True则说明响应状态小于400
 
-    @task
+    @task(5)
     @seq_task(2)
     def login_case(self):
         url = '/erp/loginIn'
         data = {"name": self.user, "pwd": self.pwd}
-        rsp = self.client.post(url, json=data, headers=self.headers, catch_response=True, name='test_1')
+        rsp = self.client.post(url, data=json.dumps(data), headers=self.headers, catch_response=True, name='test_1')
         self.token = rsp.json()['token']  # 提取响应信息中的 token
         print(self.token)
         if rsp.status_code == 200:
@@ -54,7 +54,7 @@ class TestSuite(TaskSequence):
         else:
             rsp.failure("login登录失败")
 
-    @task
+    @task(2)
     @seq_task(3)
     def getuser_case(self):
         url = '/erp/user'

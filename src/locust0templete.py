@@ -1,4 +1,5 @@
 from locust import TaskSequence, HttpLocust,task, seq_task, between
+from locust import TaskSequence,between
 
 
 class TestSuite(TaskSequence):
@@ -29,4 +30,4 @@ class RunCase(HttpLocust):
     创建 压测类 继承 HttpLocust
     """
     task_set = TestSuite    # 指定测试套件    task_set 固定
-    wait_time = between(0.1, 3) # 定义执行过程中随机等待时间区间，单位 秒
+    wait_time = between(0.01, 5) # 定义执行过程中随机等待时间区间，单位 秒
